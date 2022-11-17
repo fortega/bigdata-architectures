@@ -21,6 +21,8 @@ Problem: your GPS provider somethings send you bad data. You have to validate ea
 
 ### Classic "big data" or Batch architecture
 
+https://en.wikipedia.org/wiki/Batch_processing
+
 ### Lambda architecture
 
 https://en.wikipedia.org/wiki/Lambda_architecture
