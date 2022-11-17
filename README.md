@@ -6,6 +6,10 @@ This is a project to learn different data processing architectures using Scala a
 
 Problem: your GPS provider somethings send you bad data. You have to validate each event, and provide information about your findings
 
+## How to run
+
+> sbt "batch/run"
+
 ## Application structure
 
 * core: bussiness logic
