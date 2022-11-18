@@ -13,12 +13,12 @@ object App {
 
   private def run(in: String, out: String): Unit = createSpark.map { spark =>
     import spark.implicits._
-    spark.read
-      .parquet(in)
-      .as[EventGps]
-      .map(_.validate)
-      .write
-      .parquet(out)
+
+    val events = spark.read.parquet(in).as[EventGps]
+    val validated = events.map(_.validate)
+    validated.write.parquet(out)
+
+    spark.stop
   } match {
     case Failure(error) => sys.error(s"error: ${error.getMessage}")
     case Success(_)     => println("success")
