@@ -8,11 +8,15 @@ Problem: your GPS provider somethings send you bad data. You have to validate ea
 
 ## How to run
 
-### Batch (spark)
+### Batch (Spark)
 
 Using "input" for input files (parquet) and "output" to write validated events.
 
 > sbt "batch/run input output"
+
+### Lambda (Flink)
+
+> sbt lambda/run
 
 ## Application structure
 
