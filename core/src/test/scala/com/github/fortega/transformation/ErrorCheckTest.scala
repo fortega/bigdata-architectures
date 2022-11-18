@@ -2,7 +2,7 @@ package com.github.fortega.transformation
 
 import org.scalatest.flatspec.AnyFlatSpec
 import com.github.fortega.model.{EventGps, Validated}
-import com.github.fortega.types.GpsErrorCheck
+import com.github.fortega.types.ErrorCheck.ErrorCheckOps
 
 class ErrorCheckTest extends AnyFlatSpec {
   "ErrorCheck" should "run on valid gps events" in {
@@ -16,7 +16,7 @@ class ErrorCheckTest extends AnyFlatSpec {
         velocity = 0,
         angle = 0
       )
-    ).flatMap { event => GpsErrorCheck(event).invalidReason } match {
+    ).flatMap { _.validate.invalidReason } match {
       case Nil             => succeed
       case _: List[String] => fail
     }
@@ -43,10 +43,10 @@ class ErrorCheckTest extends AnyFlatSpec {
         angle = 0
       )
     ).foreach { case (expected, event) =>
-      GpsErrorCheck(event).invalidReason match {
+      event.validate.invalidReason match {
         case None         => fail(s"Must be $expected -> $event")
         case Some(result) => assert(expected == result)
-      }
+      } 
     }
   }
 }
