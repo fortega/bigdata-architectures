@@ -1,27 +1,33 @@
 package com.github.fortega
 
+import com.github.fortega.model.EventGps
+import com.github.fortega.types.ErrorCheck._
 import org.apache.spark.sql.SparkSession
-import scala.util.Try
-import scala.util.Failure
-import scala.util.Success
+import scala.util.{Try, Failure, Success}
 
 object App {
-  def main(cmdArgs: Array[String]): Unit = {
-    sparkSession match {
-      case Failure(error) => handleError("spark session", error)
-      case Success(spark) =>
-        println(s"Spark version: ${spark.version}")
-        spark.close
-    }
+  def main(cmdArgs: Array[String]): Unit = cmdArgs match {
+    case Array(in, out) => run(in, out)
+    case _              => sys.error("missing input / output")
   }
 
-  private def handleError(name: String, error: Throwable) =
-    sys.error(s"$name: ${error.getMessage} ")
+  private def run(in: String, out: String): Unit = createSpark.map { spark =>
+    import spark.implicits._
+    spark.read
+      .parquet(in)
+      .as[EventGps]
+      .map(_.validate)
+      .write
+      .parquet(out)
+  } match {
+    case Failure(error) => sys.error(s"error: ${error.getMessage}")
+    case Success(_)     => println("success")
+  }
 
-  private def sparkSession: Try[SparkSession] = Try {
+  private def createSpark: Try[SparkSession] = Try {
     val master = sys.env.get("(SPARK_ENV_LOADED") match {
-      case Some(value) if (value == "1") => None
-      case None                          => Some("local[*]")
+      case Some(_) => None
+      case None    => Some("local[*]")
     }
 
     master
