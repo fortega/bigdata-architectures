@@ -1,8 +1,8 @@
-package com.github.fortega.transformation
+package com.github.fortega.types
 
 import org.scalatest.flatspec.AnyFlatSpec
 import com.github.fortega.model.{EventGps, Validated}
-import com.github.fortega.types.ErrorCheck.ErrorCheckOps
+import com.github.fortega.types.ErrorCheck._
 
 class ErrorCheckTest extends AnyFlatSpec {
   "ErrorCheck" should "run on valid gps events" in {
