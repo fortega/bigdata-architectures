@@ -8,7 +8,11 @@ Problem: your GPS provider somethings send you bad data. You have to validate ea
 
 ## How to run
 
-> sbt "batch/run"
+### Batch (spark)
+
+Using "input" for input files (parquet) and "output" to write validated events.
+
+> sbt "batch/run input output"
 
 ## Application structure
 
