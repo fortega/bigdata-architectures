@@ -12,11 +12,22 @@ val core = (project in file("core"))
     )
   )
 
-val batch = (project in file ("batch"))
+val batch = (project in file("batch"))
   .dependsOn(core)
   .settings(
     name := "bigdata-architectures-batch",
     libraryDependencies ++= Seq(
       "org.apache.spark" %% "spark-sql" % "3.3.1"
+    )
+  )
+
+val flinkVersion = "1.16.0"
+val lambda = (project in file("lambda"))
+  .dependsOn(core)
+  .settings(
+    name := "bigdata-architectures-lambda",
+    libraryDependencies ++= Seq(
+      "org.apache.flink" %% "flink-streaming-scala" % flinkVersion,
+      "org.apache.flink" % "flink-clients" % flinkVersion
     )
   )
