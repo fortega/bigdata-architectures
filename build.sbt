@@ -1,8 +1,7 @@
-name := "bigdata-architectures"
 organization := "com.github.fortega"
 version := "0.0.1"
 
-scalaVersion := "2.13.10"
+scalacOptions += "-Ypartial-unification"
 
 val core = (project in file("core"))
   .settings(
@@ -13,7 +12,7 @@ val core = (project in file("core"))
     )
   )
 
-val batch = (project.in(file("batch")))
+val batch = (project in file ("batch"))
   .dependsOn(core)
   .settings(
     name := "bigdata-architectures-batch",
