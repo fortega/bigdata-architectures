@@ -4,6 +4,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
 import scala.util.{Try, Failure, Success}
 import com.github.fortega.model.EventGps
 import com.github.fortega.types.InvalidReasonInstances._
+import com.github.fortega.types.InvalidReasonSyntax._
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator
 import com.github.fortega.model.Validated
 import org.apache.flink.streaming.api.functions.sink.PrintSink
@@ -14,7 +15,7 @@ object App {
     val events = env.fromSequence(1, 100).map(i => fakeEvent(i))
 
     events
-      .map {Validated(_) }
+      .map { _.validate.toString }
       .print()
     env.execute
   } match {

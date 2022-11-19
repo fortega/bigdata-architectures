@@ -3,6 +3,7 @@ package com.github.fortega.types
 import org.scalatest.flatspec.AnyFlatSpec
 import com.github.fortega.model.{EventGps, Validated}
 import com.github.fortega.types.InvalidReasonInstances._
+import com.github.fortega.types.InvalidReasonSyntax._
 
 class InvalidReasonTest extends AnyFlatSpec {
   "InvalidReason" should "run on valid gps events" in {
@@ -16,7 +17,7 @@ class InvalidReasonTest extends AnyFlatSpec {
         velocity = 0,
         angle = 0
       )
-    ).flatMap { _.validate } match {
+    ).flatMap { _.validate.invalidReason } match {
       case Nil             => succeed
       case _: List[String] => fail
     }
@@ -43,10 +44,10 @@ class InvalidReasonTest extends AnyFlatSpec {
         angle = 0
       )
     ).foreach { case (expected, event) =>
-      event.validate match {
+      event.invalidReason match {
         case None         => fail(s"Must be $expected -> $event")
         case Some(result) => assert(expected == result)
-      } 
+      }
     }
   }
 }

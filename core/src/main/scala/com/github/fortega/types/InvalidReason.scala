@@ -26,9 +26,11 @@ object InvalidReasonInstances {
         case _                         => None
       }
   }
+}
 
-  implicit class InvalidReasonOps[A](value: A) {
-    def validate(implicit check: InvalidReason[A]) =
-      check.validate(value)
+object InvalidReasonSyntax {
+  implicit class InvalidReasonOps[A](value: A)(implicit check: InvalidReason[A]) {
+    def validate = Validated(value, check.validate(value))
+    def invalidReason = check.validate(value)
   }
 }
