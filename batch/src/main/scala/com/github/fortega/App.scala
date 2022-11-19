@@ -1,7 +1,7 @@
 package com.github.fortega
 
-import com.github.fortega.model.EventGps
-import com.github.fortega.types.ErrorCheck._
+import com.github.fortega.model.{EventGps, Validated}
+import com.github.fortega.types.InvalidReasonInstances._
 import org.apache.spark.sql.SparkSession
 import scala.util.{Try, Failure, Success}
 
@@ -15,7 +15,7 @@ object App {
     import spark.implicits._
 
     val events = spark.read.parquet(in).as[EventGps]
-    val validated = events.map(_.validate)
+    val validated = events.map(Validated(_))
     validated.write.parquet(out)
 
     spark.stop

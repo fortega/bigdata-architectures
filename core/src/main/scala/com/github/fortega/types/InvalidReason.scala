@@ -1,18 +1,14 @@
 package com.github.fortega.types
 
 import com.github.fortega.model.{EventGps, Validated}
-import scala.math.abs
+import math.abs
 
-sealed trait ErrorCheck[A] {
-  def apply(value: A): Validated[A]
+sealed trait InvalidReason[A] {
+  val validate: A => Option[String]
 }
 
-object ErrorCheck {
-  implicit class ErrorCheckOps[A](value: A) {
-    def validate(implicit check: ErrorCheck[A]): Validated[A] = check(value)
-  }
-
-  implicit val eventGps = new ErrorCheck[EventGps] {
+object InvalidReasonInstances {
+  implicit val eventGps = new InvalidReason[EventGps] {
     private val separator = ". "
     private val validations = List[(String, EventGps => Boolean)](
       "invalid longitude" -> (d => abs(d.longitude) > 180),
@@ -21,17 +17,18 @@ object ErrorCheck {
       "invalid angle" -> (d => d.angle < 0 || d.angle >= 360)
     ).par
 
-    override def apply(
-        value: EventGps
-    ): Validated[EventGps] = Validated(
-      value = value,
-      invalidReason = validations
+    override val validate: EventGps => Option[String] = value =>
+      validations
         .flatMap({ case (message, check) =>
           if (check(value)) Some(message) else None
         }) match {
         case errors if errors.nonEmpty => Some(errors.mkString(separator))
         case _                         => None
       }
-    )
+  }
+
+  implicit class InvalidReasonOps[A](value: A) {
+    def validate(implicit check: InvalidReason[A]) =
+      check.validate(value)
   }
 }
