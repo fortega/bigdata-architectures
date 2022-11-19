@@ -17,7 +17,7 @@ class InvalidReasonTest extends AnyFlatSpec {
         velocity = 0,
         angle = 0
       )
-    ).flatMap { _.validate.invalidReason } match {
+    ).flatMap { Validated(_).invalidReason } match {
       case Nil             => succeed
       case _: List[String] => fail
     }

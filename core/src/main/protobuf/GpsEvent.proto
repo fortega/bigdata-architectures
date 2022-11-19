@@ -1,0 +1,11 @@
+message GpsEvent {
+
+    required int32 deviceId = 1;
+    required int64 time = 2;
+    required double longitude = 3;
+    required double latitude = 4 ;
+    required double altitude = 5 ;
+    required int32 velocity = 6;
+    required int32 angle = 7;
+    }
+
