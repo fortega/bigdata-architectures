@@ -1,8 +1,18 @@
-organization := "com.github.fortega"
-version := "0.0.1"
+ThisBuild / organization := "com.github.fortega"
+ThisBuild / version := "0.0.1"
 
+// scoverage sbt plugin version restriction (newest have conflict with spark)
+ThisBuild / scalaVersion := "2.12.15"
+
+// Cats
 scalacOptions += "-Ypartial-unification"
 
+// ScalaPB
+Compile / PB.targets := Seq(
+  scalapb.gen() -> (Compile / sourceManaged).value / "scalapb"
+)
+
+// Projects
 val core = (project in file("core"))
   .settings(
     name := "bigdata-architectures-core",
