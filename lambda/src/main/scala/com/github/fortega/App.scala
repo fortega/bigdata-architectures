@@ -2,10 +2,10 @@ package com.github.fortega
 
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
 import scala.util.{Try, Failure, Success}
-import com.github.fortega.model.EventGps
+import com.github.fortega.model.gps.Event
 import com.github.fortega.types.InvalidReasonInstances._
+import com.github.fortega.types.InvalidReasonSyntax._
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator
-import com.github.fortega.model.Validated
 import org.apache.flink.streaming.api.functions.sink.PrintSink
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 
@@ -14,7 +14,7 @@ object App {
     val events = env.fromSequence(1, 100).map(i => fakeEvent(i))
 
     events
-      .map { Validated(_).toString }
+      .map { _.validated.toString }
       .print()
     env.execute
   } match {
@@ -22,7 +22,7 @@ object App {
     case Success(value) => println("success")
   }
 
-  private def fakeEvent(i: Long): EventGps = EventGps(
+  private def fakeEvent(i: Long) = Event(
     deviceId = (i % 10).toInt,
     time = i * 10,
     longitude = i.toDouble,

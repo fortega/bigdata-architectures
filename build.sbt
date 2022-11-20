@@ -7,13 +7,14 @@ ThisBuild / scalaVersion := "2.12.15"
 // Cats
 scalacOptions += "-Ypartial-unification"
 
-// ScalaPB
-Compile / PB.targets := Seq(
-  scalapb.gen() -> (Compile / sourceManaged).value / "scalapb"
-)
+val root = (project in file("."))
+  .settings(
+    name := "bigdata-architectures-protobuf"
+  )
 
 // Projects
 val core = (project in file("core"))
+  .dependsOn(root)
   .settings(
     name := "bigdata-architectures-core",
     libraryDependencies ++= Seq(
@@ -41,3 +42,8 @@ val lambda = (project in file("lambda"))
       "org.apache.flink" % "flink-clients" % flinkVersion
     )
   )
+
+// ScalaPB
+Compile / PB.targets := Seq(
+  scalapb.gen() -> ( core / Compile / sourceManaged).value / "scalapb"
+)

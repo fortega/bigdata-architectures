@@ -1,5 +1,8 @@
-message GpsEvent {
+syntax = "proto2";
 
+package com.github.fortega.model;
+
+message Event {
     required int32 deviceId = 1;
     required int64 time = 2;
     required double longitude = 3;
@@ -7,5 +10,5 @@ message GpsEvent {
     required double altitude = 5 ;
     required int32 velocity = 6;
     required int32 angle = 7;
-    }
+}
 
