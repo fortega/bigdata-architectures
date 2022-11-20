@@ -27,9 +27,13 @@ val batch = (project in file("batch"))
   .dependsOn(core)
   .settings(
     name := "bigdata-architectures-batch",
-    libraryDependencies ++= Seq(
-      "org.apache.spark" %% "spark-sql" % "3.3.1"
-    )
+    libraryDependencies += "org.apache.spark" %% "spark-sql" % "3.3.1"
+  )
+val producer = (project in file("producer"))
+  .dependsOn(core)
+  .settings(
+    name := "gps-events-producer",
+    libraryDependencies += "com.rabbitmq" % "amqp-client" % "5.16.0"
   )
 
 val flinkVersion = "1.16.0"
@@ -45,5 +49,5 @@ val lambda = (project in file("lambda"))
 
 // ScalaPB
 Compile / PB.targets := Seq(
-  scalapb.gen() -> ( core / Compile / sourceManaged).value / "scalapb"
+  scalapb.gen() -> (core / Compile / sourceManaged).value / "scalapb"
 )
