@@ -1,7 +1,11 @@
 version: "3.3"
 services:
   rabbitmq:
-    image: docker.io/library/rabbitmq:3-management
+    image: rabbitmq:3-management
     ports:
       - 5672:5672
       - 15672:15672
+  producer:
+    build:
+      context: .
+      dockerfile: Dockerfile.producer
