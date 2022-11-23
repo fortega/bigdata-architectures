@@ -10,4 +10,4 @@ COPY src src
 COPY core core
 COPY producer producer
 RUN sbt/bin/sbt producer/compile
-CMD [ "sbt/bin/sbt", "producer/run rabbitmq raw 1000000" ]
+CMD [ "sbt/bin/sbt", "producer/run rabbitmq raw 1000" ]
