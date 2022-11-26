@@ -11,4 +11,8 @@ message Event {
     required int32 velocity = 6;
     required int32 angle = 7;
 }
+message ValidatedEvent {
+    required Event value = 1;
+    optional string invalidReasion = 2;
+}
 
