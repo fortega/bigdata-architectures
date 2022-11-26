@@ -14,9 +14,15 @@ Using "input" for input files (parquet) and "output" to write validated events.
 
 > sbt "batch/run input output"
 
-### Lambda (Flink)
+### Producer (+ RabbitMQ)
 
-> sbt lambda/run
+> docker-compose up
+
+RabbitMQ server is up using default ports (Server: 5672 / UI: 15672) and password (guest:guest).
+
+### Lambda (AMQP client)
+
+> sbt "lambda/run localhost raw deadLetter valid invalid"
 
 ## Application structure
 
