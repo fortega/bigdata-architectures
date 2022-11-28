@@ -20,14 +20,14 @@ case class RabbitQueue(
     queues: List[String] = List(),
     exchange: String = ""
 ) extends MessageQueue[String, RabbitMessage] {
+  queues.foreach(channel.queueDeclare(_, true, false, false, null))
+
   private lazy val props = new BasicProperties
-  protected lazy val channel = {
+  private lazy val channel = {
     val cf = new ConnectionFactory
     cf.setHost(host)
     cf.newConnection.createChannel
   }
-
-  queues.foreach(channel.queueDeclare(_, true, false, false, null))
 
   override def publish(
       queue: String,
@@ -49,7 +49,7 @@ case class RabbitQueue(
           log(s"CancelOk: $consumerTag", Some(0))
 
         override def handleCancel(consumerTag: String): Unit =
-          log(s"CancelOk: $consumerTag", Some(0))
+          log(s"Cancel: $consumerTag", Some(1))
 
         override def handleShutdownSignal(
             consumerTag: String,
@@ -70,10 +70,13 @@ case class RabbitQueue(
           channel.basicAck(tag, false)
         }
 
-        private def log(message: String, exitCode: Option[Int] = None) = {
-          l.info(message)
-          exitCode.foreach(sys.exit(_))
-        }
+        private def log(message: String, exitCode: Option[Int] = None) =
+          exitCode match {
+            case None => l.info(message)
+            case Some(status) =>
+              l.error(message)
+              sys.exit(status)
+          }
       }
     )
   }
