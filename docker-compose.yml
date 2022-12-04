@@ -5,8 +5,6 @@ services:
     ports:
       - 5672:5672
       - 15672:15672
-    depends_on:
-      - producer
   producer:
     environment:
       - PERIOD=10
@@ -15,3 +13,5 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.producer
+    depends_on:
+      - rabbitmq
