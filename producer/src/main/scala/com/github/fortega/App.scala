@@ -8,9 +8,9 @@ import scala.util.Failure
 import scala.util.Success
 
 object App {
-  def main(cmdArgs: Array[String]): Unit = cmdArgs match {
-    case Array(server, queue, period) if Try(period.toInt).isSuccess =>
-      usingChannel(server) { channel =>
+  def main(cmdArgs: Array[String]): Unit = config(sys.env) match {
+    case Some(Array(host, queue, period)) if Try(period.toLong).isSuccess =>
+      usingChannel(host) { channel =>
         channel.queueDeclare(queue, true, false, false, null)
 
         createTimer(period.toLong) { () =>
@@ -19,9 +19,18 @@ object App {
         }
 
         loop
+      } match {
+        case Failure(error) => 
+          error.printStackTrace()
+        case Success(_) =>
       }
     case _ => sys.error("invalid arguments")
   }
+  private def config(env: Map[String, String]) = for {
+    host <- env.get("HOST")
+    queue <- env.get("QUEUE")
+    period <- env.get("PERIOD")
+  } yield Array(host, queue, period)
 
   private def loop = while (true) { Thread.sleep(Long.MaxValue) }
 

@@ -5,7 +5,13 @@ services:
     ports:
       - 5672:5672
       - 15672:15672
+    depends_on:
+      - producer
   producer:
+    environment:
+      - PERIOD=10
+      - HOST=rabbitmq
+      - QUEUE=raw
     build:
       context: .
       dockerfile: Dockerfile.producer

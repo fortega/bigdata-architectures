@@ -1,4 +1,4 @@
-FROM eclipse-temurin:8
+FROM eclipse-temurin:8 as builder
 
 WORKDIR /build
 ADD https://github.com/sbt/sbt/releases/download/v1.7.3/sbt-1.7.3.tgz .
@@ -9,5 +9,12 @@ COPY project project
 COPY src src
 COPY core core
 COPY producer producer
-RUN sbt/bin/sbt producer/compile
-CMD [ "sbt/bin/sbt", "producer/run rabbitmq raw 1000" ]
+RUN sbt/bin/sbt producer/pack
+
+FROM eclipse-temurin:8 as runner
+WORKDIR /app
+COPY --from=builder /build/producer/target/pack/ ./
+ENV PERIOD=250
+ENV HOST=localhost
+ENV QUEUE=queue
+CMD [ "/app/bin/app" ]
