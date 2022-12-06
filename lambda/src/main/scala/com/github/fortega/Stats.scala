@@ -16,4 +16,6 @@ class Stats {
     f
     lock.release
   }
+
+  override def toString(): String = s"invalid/valid -> $invalid/$valid"
 }
