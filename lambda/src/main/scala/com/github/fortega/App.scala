@@ -26,14 +26,16 @@ object App extends ZIOAppDefault {
   def printSink[A] = ZSink.foreach[Any, Any, A](Console.printLine(_))
 
   def queueDiscovery(
-      config: Config
+      deadLetter: String,
+      invalid: String,
+      valid: String
   ): RabbitMQ.Event[Try[ValidatedEvent]] => String = _.value match {
     case Success(validated) =>
-      validated.invalidReasion match {
-        case None    => config.valid
-        case Some(_) => config.invalid
+      validated.invalidReason match {
+        case None    => valid
+        case Some(_) => invalid
       }
-    case _ => config.deadLetter
+    case _ => deadLetter
   }
 
   implicit def rabbitToByte[A <: { def toByteArray: Array[Byte] }](
@@ -62,7 +64,12 @@ object App extends ZIOAppDefault {
             .map(event => ValidatedEvent(event, event.invalidReason))
         )
       )
-      .tapSink(RabbitMQ.forwardSink(channel, queueDiscovery(config)))
+      .tapSink(
+        RabbitMQ.forwardSink(
+          channel,
+          queueDiscovery(config.deadLetter, config.invalid, config.valid)
+        )
+      )
       .tapSink(printSink)
       .run(RabbitMQ.ackSink(channel))
   } yield ()

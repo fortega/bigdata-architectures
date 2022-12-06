@@ -13,6 +13,6 @@ message Event {
 }
 message ValidatedEvent {
     required Event value = 1;
-    optional string invalidReasion = 2;
+    optional string invalidReason = 2;
 }
 
