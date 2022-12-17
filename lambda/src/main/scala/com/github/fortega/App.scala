@@ -29,13 +29,16 @@ object App extends ZIOAppDefault {
       deadLetter: String,
       invalid: String,
       valid: String
-  ): RabbitMQ.Event[Try[ValidatedEvent]] => String = _.value match {
-    case Success(validated) =>
-      validated.invalidReason match {
-        case None    => valid
-        case Some(_) => invalid
+  ): ((Long, BasicProperties, Try[ValidatedEvent])) => String = {
+    case (_, _, data) =>
+      data match {
+        case Success(validated) =>
+          validated.invalidReason match {
+            case None    => valid
+            case Some(_) => invalid
+          }
+        case _ => deadLetter
       }
-    case _ => deadLetter
   }
 
   implicit def rabbitToByte[A <: { def toByteArray: Array[Byte] }](
@@ -45,32 +48,37 @@ object App extends ZIOAppDefault {
     case Success(validated) => (null, validated.toByteArray)
   }
 
+  def app(config: Config) = for {
+    stream <- RabbitMQ.consumerStream(config.input)
+    forward <- {
+      val discovery =
+        queueDiscovery(config.deadLetter, config.invalid, config.valid)
+      implicit val convert: ((Long, BasicProperties, Try[ValidatedEvent])) => (
+          BasicProperties,
+          Array[Byte]
+      ) = { case (_, props, data) =>
+        (props, data.get.toByteArray)
+      }
+      RabbitMQ.forwardSink(discovery)
+    }
+    ackSink <- RabbitMQ.ackSink
+    result <- stream
+      .map { case (tag, props, data) =>
+        val validatedEvent = Try(Event.parseFrom(data))
+          .map(event => ValidatedEvent(event, event.invalidReason))
+        (tag, props, validatedEvent)
+      }
+      .tapSink(forward)
+      .tapSink(printSink)
+      .map { case (tag, _, _) => tag }
+      .run(ackSink)
+  } yield result
+
   def run = for {
-    _ <- Console.printLine("starting")
     args <- getArgs
     config <- ZIO.fromEither(getConfig(args))
-    channel = RabbitMQ.createChannel(config.host)
-    _ = RabbitMQ.createQueues(
-      channel,
-      config.deadLetter,
-      config.invalid,
-      config.valid
-    )
-    stream = RabbitMQ.consumerStream(channel, config.input)
-    _ <- stream
-      .map(
-        _.map(v =>
-          Try(Event.parseFrom(v))
-            .map(event => ValidatedEvent(event, event.invalidReason))
-        )
-      )
-      .tapSink(
-        RabbitMQ.forwardSink(
-          channel,
-          queueDiscovery(config.deadLetter, config.invalid, config.valid)
-        )
-      )
-      .tapSink(printSink)
-      .run(RabbitMQ.ackSink(channel))
-  } yield ()
+    result <- app(config).provide {
+      ZLayer(ZIO.fromTry { RabbitMQ.createChannel(config.host) })
+    }
+  } yield result
 }
