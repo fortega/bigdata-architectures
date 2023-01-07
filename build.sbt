@@ -4,17 +4,18 @@ ThisBuild / version := "0.0.1"
 // scoverage sbt plugin version restriction (newest have conflict with spark)
 ThisBuild / scalaVersion := "2.12.15"
 
-// Cats
-scalacOptions += "-Ypartial-unification"
-
 // Dependencies
 val amqpClient = "com.rabbitmq" % "amqp-client" % "5.16.0"
-// val cats = "org.typelevel" %% "cats-core" % "2.9.0"
 val scalaTest = "org.scalatest" %% "scalatest" % "3.2.14" % Test
 val slf4j = "org.slf4j" % "slf4j-simple" % "2.0.5"
 val sparkSql = "org.apache.spark" %% "spark-sql" % "3.3.1"
-val zio = "dev.zio" %% "zio" % "2.0.1"
-val zioStreams = "dev.zio" %% "zio-streams" % "2.0.1"
+val zio = {
+  val version = "2.0.5"
+  Seq(
+    "dev.zio" %% "zio" % version,
+    "dev.zio" %% "zio-streams" % version
+  )
+}
 
 // Projects
 val root = (project in file("."))
@@ -48,7 +49,7 @@ val lambda = (project in file("lambda"))
   .dependsOn(core)
   .settings(
     name := "bigdata-architectures-lambda",
-    libraryDependencies ++= Seq(amqpClient, zio, zioStreams)
+    libraryDependencies ++= Seq(amqpClient) ++ zio
   )
   .enablePlugins(PackPlugin)
 
